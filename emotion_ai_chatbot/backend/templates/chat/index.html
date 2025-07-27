@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Emotion-Aware Chatbot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    /* Emotion colors */
+    .emotion-happy { background-color: #d9f99d !important; color: #166534 !important; }
+    .emotion-sad { background-color: #bfdbfe !important; color: #1e40af !important; }
+    .emotion-angry { background-color: #fecaca !important; color: #991b1b !important; }
+    
+    /* Theme definitions */
+    .theme-dark {
+      --bg-primary: #1f2937;
+      --bg-secondary: #111827;
+      --bg-tertiary: #1e293b;
+      --text-primary: #f9fafb;
+      --text-secondary: #e5e7eb;
+      --accent-color: #10b981;
+      --border-color: #374151;
+      --chat-bg: #1e293b;
+      --user-msg-bg: #166534;
+      --bot-msg-bg: #374151;
+    }
+    
+    .theme-light {
+      --bg-primary: #f9fafb;
+      --bg-secondary: #e5e7eb;
+      --bg-tertiary: #ffffff;
+      --text-primary: #111827;
+      --text-secondary: #374151;
+      --accent-color: #10b981;
+      --border-color: #d1d5db;
+      --chat-bg: #ffffff;
+      --user-msg-bg: #86efac;
+      --bot-msg-bg: #e5e7eb;
+    }
+    
+    .theme-blue {
+      --bg-primary: #eff6ff;
+      --bg-secondary: #dbeafe;
+      --bg-tertiary: #ffffff;
+      --text-primary: #1e3a8a;
+      --text-secondary: #2563eb;
+      --accent-color: #3b82f6;
+      --border-color: #93c5fd;
+      --chat-bg: #ffffff;
+      --user-msg-bg: #93c5fd;
+      --bot-msg-bg: #dbeafe;
+    }
+    
+    .theme-pink {
+      --bg-primary: #fdf2f8;
+      --bg-secondary: #fce7f3;
+      --bg-tertiary: #ffffff;
+      --text-primary: #831843;
+      --text-secondary: #be185d;
+      --accent-color: #ec4899;
+      --border-color: #f9a8d4;
+      --chat-bg: #ffffff;
+      --user-msg-bg: #f9a8d4;
+      --bot-msg-bg: #fce7f3;
+    }
+    
+    /* Apply theme variables */
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    
+    .header-bg {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+    
+    .input-bg {
+      background-color: var(--bg-secondary);
+      border-color: var(--border-color);
+    }
+    
+    .accent-btn {
+      background-color: var(--accent-color);
+      color: white;
+    }
+    
+    .chat-container {
+      background-color: var(--chat-bg);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+    }
+    
+    .message-input {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+    
+    /* Message bubbles */
+    .user-message {
+      background-color: var(--user-msg-bg);
+      color: var(--text-primary);
+    }
+    
+    .bot-message {
+      background-color: var(--bot-msg-bg);
+      color: var(--text-primary);
+    }
+    
+    /* Chat box styling */
+    .chat-box-container {
+      background-color: var(--chat-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body class="theme-light">
+
+  <!-- Header / Menu -->
+  <header class="header-bg px-6 py-4 flex justify-between items-center shadow">
+    <h1 class="text-xl font-semibold">🧠 Emotion-Aware Chatbot</h1>
+    <div class="relative">
+      <button id="theme-toggle" class="accent-btn hover:opacity-90 px-4 py-2 rounded-lg transition flex items-center gap-2">
+        <span id="theme-name">Light</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </button>
+      <div id="theme-dropdown" class="hidden absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10" style="background-color: var(--bg-tertiary);">
+        <div class="py-1">
+          <button data-theme="light" class="theme-option block w-full text-left px-4 py-2 text-sm hover:bg-gray-100" style="color: var(--text-primary);">Light</button>
+          <button data-theme="dark" class="theme-option block w-full text-left px-4 py-2 text-sm hover:bg-gray-100" style="color: var(--text-primary);">Dark</button>
+          <button data-theme="blue" class="theme-option block w-full text-left px-4 py-2 text-sm hover:bg-gray-100" style="color: var(--text-primary);">Blue</button>
+          <button data-theme="pink" class="theme-option block w-full text-left px-4 py-2 text-sm hover:bg-gray-100" style="color: var(--text-primary);">Pink</button>
+        </div>
+      </div>
+    </div>
+  </header>
+    <!-- Main Content -->
+
+  <!-- Chat Container -->
+  <main class="flex-1 flex flex-col items-center justify-start p-6 overflow-hidden ">
+    <h1 class="text-2xl font-bold mb-4 text-center">👋Welcome to the Emotion-Aware Chatbot!</h1>
+    </h1>
+    <div class="w-full max-w-3xl flex flex-col flex-grow overflow-hidden">
+      <!-- Chat Box Container -->
+      <div class="chat-box-container flex-1 flex flex-col overflow-hidden">
+        <!-- Chat Messages -->
+        <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-4">
+          <!-- Messages will appear here -->
+        
+        </div>
+
+        <!-- Input Section -->
+        <div class="input-bg flex items-center gap-2 p-4 border-t">
+          <input type="text" id="user-input" placeholder="Type your message..." 
+                class="message-input flex-1 px-4 py-2 rounded-full border focus:outline-none focus:ring-2 focus:ring-emerald-400"/>
+          <button id="send-btn" class="accent-btn hover:opacity-90 px-4 py-2 rounded-full transition">Send</button>
+          <button id="clear-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full transition">Clear</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Theme management
+    const themes = {
+      light: {
+        name: "Light",
+        class: "theme-light"
+      },
+      dark: {
+        name: "Dark",
+        class: "theme-dark"
+      },
+      blue: {
+        name: "Blue",
+        class: "theme-blue"
+      },
+      pink: {
+        name: "Pink",
+        class: "theme-pink"
+      }
+    };
+
+    // Initialize theme
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      setTheme(savedTheme);
+    }
+
+    // Set theme
+    function setTheme(themeKey) {
+      const theme = themes[themeKey];
+      document.body.className = theme.class;
+      document.getElementById('theme-name').textContent = theme.name;
+      localStorage.setItem('theme', themeKey);
+      
+      // Close dropdown if open
+      document.getElementById('theme-dropdown').classList.add('hidden');
+    }
+
+    // Toggle theme dropdown
+    document.getElementById('theme-toggle').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('theme-dropdown').classList.toggle('hidden');
+    });
+
+    // Handle theme selection
+    document.querySelectorAll('.theme-option').forEach(option => {
+      option.addEventListener('click', () => {
+        setTheme(option.dataset.theme);
+      });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+      document.getElementById('theme-dropdown').classList.add('hidden');
+    });
+
+    // Initialize
+    initTheme();
+
+    // Chat functionality
+    $(document).ready(function () {
+      $('#send-btn').click(sendMessage);
+      $('#clear-btn').click(clearChat);
+      $('#user-input').keypress(function (e) {
+        if (e.which === 13) sendMessage();
+      });
+
+      function sendMessage() {
+        const message = $('#user-input').val().trim();
+        if (!message) return;
+
+        addMessage('user', message, 'neutral');
+        $('#user-input').val('');
+        $('#send-btn').prop('disabled', true).text('...');
+
+        $.ajax({
+          url: '/api/chat/',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ message: message }),
+          success: function (data) {
+            if (data.status === 'success') {
+              addMessage('bot', data.response, data.emotion);
+            }
+          },
+          error: function (xhr) {
+            console.error("Error:", xhr.responseText);
+            addMessage('bot', "Sorry, I'm having trouble responding. Please try again.", 'neutral');
+          },
+          complete: function() {
+            $('#send-btn').prop('disabled', false).text('Send');
+          }
+        });
+      }
+
+      function addMessage(sender, text, emotion) {
+        text = text.replace(/"/g, "'").replace(/\s+/g, ' ').trim();
+        
+        const msg = $('<div></div>')
+          .addClass(`flex max-w-[70%] px-4 py-3 rounded-2xl text-sm mb-2 ${sender}-message`)
+          .addClass(`emotion-${emotion}`)
+          .text(text);
+
+        $('#chat-box').append(msg);
+        $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
+      }
+
+      function clearChat() {
+        $('#chat-box').empty();
+      }
+    });
+  </script>
+</body>
+</html>
