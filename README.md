@@ -40,3 +40,74 @@ graph TD
     F --> C
     G --> C
     C -->|JSON Response| B
+```
+
+##1-Installation
+
+Prerequisites
+Python 3.9+
+pip
+Node.js (for optional frontend tooling)
+
+##2-Setup
+Clone the repository:
+bash
+git clone [https://github.com/yourusername/emotion-aware-chatbot.git](https://github.com/ranazain9/EmotiChat-The-AI-Powered-Emotion-detector)
+cd emotion-aware-chatbot
+
+##3-Set up Python environment:
+
+bash
+python -m venv venv
+source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+pip install -r requirements.txt
+
+##4-Install NLTK data:
+python -c "import nltk; nltk.download('vader_lexicon')"
+
+##5-Run migrations:
+
+python manage.py migrate
+
+##6-Start development server:
+python manage.py runserver
+
+API Endpoints
+Endpoint	Method	Description	Request Format	Response Format
+/api/chat/	POST	Process chat message	{"message": "string"}	{"response": "string", "emotion": "string", "status": "string"}
+Configuration
+Environment variables (set in .env):
+
+ini
+DEBUG=True
+SECRET_KEY=your-secret-key
+ALLOWED_HOSTS=localhost,127.0.0.1
+Usage
+Access the chat interface at http://localhost:8000
+
+Type your message in the input box
+
+View emotion-detected responses with appropriate styling
+
+Customization
+Adding New Themes
+Add new theme CSS variables in static/css/styles.css
+
+Update the themes object in the JavaScript
+
+Modifying Emotion Detection
+Edit utils/emotion_detection.py to adjust:
+
+Emotion thresholds
+
+Sentiment analysis weights
+
+Additional emotion categories
+
+Troubleshooting
+Issue: Model not loading
+Solution: Ensure you have internet connection for first-time model downloads
+
+Issue: Emotion detection inaccurate
+Solution: Adjust thresholds in detect_emotion() function
+
